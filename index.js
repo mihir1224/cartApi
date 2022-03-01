@@ -31,7 +31,7 @@ mongoose.connect(
   },
   () => console.log("connect successfully")
 );
-//demo
+
 //server
 app.get("", (req, res) => {
   res.send("Welcome to my world!🙏🙌");
