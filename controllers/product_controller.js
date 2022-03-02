@@ -10,6 +10,7 @@ exports.createProduct = async (req, res) => {
     });
 
     const saveProduct = await productDetails.save();
+
     res.send({
       error: false,
       statusCode: 200,
@@ -73,6 +74,7 @@ exports.updateProduct = async (req, res) => {
       products,
       { new: true }
     );
+
     res.json({
       error: false,
       statusCode: 200,

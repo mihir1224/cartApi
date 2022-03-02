@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const cart = require("../model/cart_model");
+const product = require("../model/product_model");
 
 //create
 exports.createCart = async (req, res) => {
@@ -14,11 +15,19 @@ exports.createCart = async (req, res) => {
       path: "productId",
       select: "name",
     });
+
+    const counts = await product.findByIdAndUpdate(
+      saveCart.productId._id,
+      { $inc: { count: -saveCart.quantity } },
+      { new: true }
+    );
+
     res.send({
       error: false,
       statusCode: 200,
       message: "Cart created successfully",
       data: saveCart,
+      product: counts,
     });
   } catch (error) {
     res.send({
@@ -54,12 +63,14 @@ exports.ShowCart = async (req, res) => {
 //show by Id
 exports.showSingleCart = async (req, res) => {
   try {
-    const singleCart = await cart.findById(req.params.productId);
+    const singleCart = await cart.findById(req.params.cartId);
+
     res.json({
       error: false,
       statusCode: 200,
       message: "Cart show successfully",
       data: singleCart,
+      product: count,
     });
   } catch (error) {
     res.json({
@@ -78,11 +89,19 @@ exports.updateCart = async (req, res) => {
     const cartUpdate = await cart.findByIdAndUpdate(req.params.cartId, carts, {
       new: true,
     });
+
+    const count = await product.findByIdAndUpdate(
+      cartUpdate.productId._id,
+      { $inc: { count: -cartUpdate.quantity } },
+      { new: true }
+    );
+
     res.json({
       error: false,
       statusCode: 200,
       message: "Updated successfully",
       data: cartUpdate,
+      product: count,
     });
   } catch (error) {
     res.json({
@@ -96,18 +115,26 @@ exports.updateCart = async (req, res) => {
 //delete
 exports.deleteCart = async (req, res) => {
   try {
-    const cartDelete = await cart.findByIdAndDelete(req.params.productId);
+    const cartDelete = await cart.findByIdAndDelete(req.params.cartId);
+
+    const counts = await product.findByIdAndUpdate(
+      cartDelete.productId._id,
+      { $inc: { count: cartDelete.quantity } },
+      { new: true }
+    );
+
     res.json({
       error: false,
       statusCode: 200,
       message: "Deleted successfully",
       data: cartDelete,
+      product: counts,
     });
   } catch (error) {
     res.json({
       error: true,
       statusCode: 404,
-      message,
+      message: error.message,
     });
   }
 };
