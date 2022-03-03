@@ -86,13 +86,17 @@ exports.updateCart = async (req, res) => {
   try {
     const carts = req.body;
 
+    let abc = await cart.findById(req.params.cartId);
+
     const cartUpdate = await cart.findByIdAndUpdate(req.params.cartId, carts, {
       new: true,
     });
 
+    let aa = cartUpdate.quantity - abc.quantity;
+
     const count = await product.findByIdAndUpdate(
       cartUpdate.productId._id,
-      { $inc: { count: -cartUpdate.quantity } },
+      { $inc: { count: -aa } },
       { new: true }
     );
 
@@ -111,6 +115,28 @@ exports.updateCart = async (req, res) => {
     });
   }
 };
+
+// try{
+//   const d= await cartProducts.find({product_id:req.body.product_id})
+//   let d1 = d[0]
+//   d1 = d1.quantity - req.body.quantity;
+//   console.log("d1:=="+d1)
+//   const data = await  cartProducts.findOneAndUpdate({product_id:req.body.product_id},{
+//       quantity:req.body.quantity
+//   })
+//   const a= await data.save()
+//   const data1 = await stockProduct.find({product_id:req.body.product_id})
+//   let ab = data1[0].toObject()
+//   let final = await stockProduct.findOneAndUpdate({product_id:req.body.product_id},{
+//       $inc : {count : d1}
+//   })
+//   let ans = await final.save()
+//   res.send(ans)
+// }
+// catch(e){
+//   res.send(e.message)
+// }
+// })
 
 //delete
 exports.deleteCart = async (req, res) => {
