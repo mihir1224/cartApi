@@ -7,6 +7,7 @@ exports.createProduct = async (req, res) => {
     const productDetails = new product({
       name: req.body.name,
       count: req.body.count,
+      email: req.body.email,
     });
 
     const saveProduct = await productDetails.save();

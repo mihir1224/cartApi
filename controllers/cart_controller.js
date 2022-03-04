@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const cart = require("../model/cart_model");
 const product = require("../model/product_model");
+const nodemailer = require("nodemailer");
 
 //create
 exports.createCart = async (req, res) => {
@@ -13,7 +14,7 @@ exports.createCart = async (req, res) => {
     let saveCart = await cartDetails.save();
     await saveCart.populate({
       path: "productId",
-      select: "name",
+      select: "name email",
     });
 
     const counts = await product.findByIdAndUpdate(
@@ -21,6 +22,33 @@ exports.createCart = async (req, res) => {
       { $inc: { count: -saveCart.quantity } },
       { new: true }
     );
+
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "mihirborsaliwala75@gmail.com",
+        pass: "mihir4221",
+      },
+    });
+
+    let mailOptions = {
+      from: "mihirborsaliwala75@gmail.com",
+      to: counts.email,
+      subject: "Cart created successfully",
+      text: JSON.stringify(req.body),
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
+
+    module.exports = nodemailer;
 
     res.send({
       error: false,
@@ -144,3 +172,5 @@ exports.deleteCart = async (req, res) => {
     });
   }
 };
+
+// module.exports = nodemailer;
